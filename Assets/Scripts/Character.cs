@@ -14,8 +14,8 @@ public class Character : MonoBehaviour
     private Rigidbody2D rb;
     private bool moveRight;
     private bool moveLeft;
-
-    private bool facingRight = true; // Variable to track the direction the character is facing
+    private bool facingRight = true;
+    private bool isJumping = false;
 
     void Start()
     {
@@ -31,6 +31,11 @@ public class Character : MonoBehaviour
     {
         // Check if the character is grounded
         bool isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+
+        if (isGrounded && !isJumping)
+        {
+            animator.SetBool("IsJumping", false);
+        }
 
         Movement();
     }
@@ -78,7 +83,6 @@ public class Character : MonoBehaviour
             horizontalMove = speed;
         }
 
-        // Update the animator parameter for Speed
         animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
         rb.velocity = new Vector2(horizontalMove, rb.velocity.y);
@@ -86,50 +90,51 @@ public class Character : MonoBehaviour
 
     void Jump()
     {
-        // Check if the character is grounded before jumping
         bool isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
-        Debug.Log("Is Grounded: " + isGrounded); // Debugging
 
         if (isGrounded)
         {
+            isJumping = true;
             animator.SetBool("IsJumping", true);
-            Debug.Log("IsJump is true");
+            StartCoroutine(ResetJump());
             StartCoroutine(Jumpstart());
-            
-
-            // Start a coroutine to reset IsJumping after a delay
-            StartCoroutine(ResetIsJumping());
         }
     }
+
     IEnumerator Jumpstart()
     {
         yield return new WaitForSeconds(0.3f);
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-    }
-    IEnumerator ResetIsJumping()
-    {
-        // Wait for the duration of the jump animation
-        yield return new WaitForSeconds(1.02f);
 
-        // Reset the IsJumping parameter
+    }
+        IEnumerator ResetJump()
+    {
+        yield return new WaitForSeconds(1.5f);
+        isJumping = false;
         animator.SetBool("IsJumping", false);
-        Debug.Log("IsJump is false");
+    }
+
+    public void HandleCoinCollision(Animator coinAnimator)
+    {
+        coinAnimator.SetBool("IsCollide", true);
+        StartCoroutine(ResetCoinCollision(coinAnimator));
+    }
+
+    IEnumerator ResetCoinCollision(Animator coinAnimator)
+    {
+        yield return new WaitForSeconds(0.5f);
+        coinAnimator.SetBool("IsCollide", false);
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Draw a small sphere to visualize the ground check position
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(groundCheck.position, 0.1f);
     }
 
-    // Method to flip the character
     void Flip()
     {
-        // Switch the direction the character is facing
         facingRight = !facingRight;
-
-        // Flip the character GameObject by flipping its scale
         Vector3 newScale = transform.localScale;
         newScale.x *= -1;
         transform.localScale = newScale;

@@ -6,7 +6,7 @@ using TMPro;
 public class CodeInput : MonoBehaviour
 {
     public Dictionary<DateTime, string> codeMap = new Dictionary<DateTime, string>(); // Mapping between dates and codes
-    public string sceneName = "game"; // Name of the scene to load
+    public string sceneName = "Startup"; // Name of the scene to load
     public TMP_InputField inputField; // Reference to the TMP_InputField component
     public TMP_Text resultText; // Reference to the TMP_Text component to display result
 
@@ -19,7 +19,7 @@ public class CodeInput : MonoBehaviour
     private void PopulateCodeMap()
     {
         // Add codes and dates from March 5th to April 7th
-        codeMap.Add(new DateTime(2024, 3, 5), "0000");
+        codeMap.Add(new DateTime(2024, 3, 8), "0000");
         codeMap.Add(new DateTime(2024, 3, 12), "1234");
         codeMap.Add(new DateTime(2024, 3, 13), "5678");
         codeMap.Add(new DateTime(2024, 3, 14), "9876");
@@ -62,6 +62,14 @@ public class CodeInput : MonoBehaviour
         DateTime currentDate = DateTime.UtcNow.AddHours(5.5); // Convert to IST
         currentDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day); // Set time to 00:00:00
 
+        // Check if the input matches the master key
+        if (input == "digiLATERAL")
+        {
+            // Change the scene to the specified scene name
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+            return; // Exit the method to avoid further checks
+        }
+
         string correctCode;
         if (codeMap.TryGetValue(currentDate, out correctCode))
         {
@@ -72,8 +80,13 @@ public class CodeInput : MonoBehaviour
             }
             else
             {
-                resultText.text = "No code found for today's date.";
+                resultText.text = "Incorrect code for today's date.";
             }
         }
+        else
+        {
+            resultText.text = "No code found for today's date.";
+        }
     }
+
 }
