@@ -96,28 +96,30 @@ public class Character : MonoBehaviour
         {
             isJumping = true;
             animator.SetBool("IsJumping", true);
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             StartCoroutine(ResetJump());
-            StartCoroutine(Jumpstart());
         }
     }
 
-    IEnumerator Jumpstart()
+    IEnumerator ResetJump()
     {
-        yield return new WaitForSeconds(0.3f);
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-
-    }
-        IEnumerator ResetJump()
-    {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.8f);
         isJumping = false;
         animator.SetBool("IsJumping", false);
     }
 
-    public void HandleCoinCollision(Animator coinAnimator)
+    public void HandleCoinCollision(Animator coinAnimator, bool isSpecial)
     {
         coinAnimator.SetBool("IsCollide", true);
         StartCoroutine(ResetCoinCollision(coinAnimator));
+        if (!isSpecial)
+        {
+            // Handle normal coin logic here
+        }
+        else
+        {
+            // Handle special coin logic here
+        }
     }
 
     IEnumerator ResetCoinCollision(Animator coinAnimator)
